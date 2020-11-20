@@ -1,0 +1,89 @@
+/**
+ * @COSC 2351 Data Structures [Web Crawler Project] 
+ * @author marianky
+ */
+
+import java.io.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.*;
+
+public class Spider {
+
+    private static final int MAX_PAGES_TO_SEARCH = 100;
+    private Set<String> pagesVisited = new HashSet<String>();
+    private List<String> pagesToVisit = new LinkedList<String>();
+
+    /**
+     * The main launching point for the Spider's functionality. Internally it
+     * creates spider legs that make an HTTP request and parse the response (the
+     * web page).
+     *
+     * @param url - The starting point of the spider
+     * @param searchWord - The word or string that you are searching for
+     */
+    public void search(String url, String searchWord) {
+        while (this.pagesVisited.size() < MAX_PAGES_TO_SEARCH) {
+            String currentUrl;
+            SpiderLeg leg = new SpiderLeg();
+            if (this.pagesToVisit.isEmpty()) {
+                currentUrl = url;
+                this.pagesVisited.add(url);
+            } else {
+                currentUrl = this.nextUrl();
+            }
+            String[] urlSplit = currentUrl.split("/");
+            String urlShort = urlSplit[2];
+            String fileUrl = urlShort.replace(".", "");
+            fileUrl = fileUrl.concat(".html");
+            leg.crawl(currentUrl); // Lots of stuff happening here. Look at the crawl method in
+            // SpiderLeg
+            boolean success = leg.searchForWord(searchWord);
+            if (success) {
+                System.out.println(String.format("**Success** Word %s found at %s", searchWord, currentUrl));
+                File directory = new File("HTML");
+                if(!directory.exists()){
+                    directory.mkdir();
+                }
+                File subDirectory = new File("HTML/" + searchWord);
+                if(!subDirectory.exists()){
+                    subDirectory.mkdir();
+                }
+                
+                File newFile = new File("HTML/" + searchWord + "/" + fileUrl);
+                System.out.println(currentUrl);
+                try{
+                    FileWriter writer = new FileWriter(newFile);
+                    BufferedWriter bwriter = new BufferedWriter(writer);
+                    bwriter.write(leg.gethtmlDocument().outerHtml());
+                    bwriter.close();
+                }
+                catch(IOException e){
+                    System.out.println(e.getMessage());
+                    System.out.println("Unable to write document to file.");
+                }
+                break;
+            }
+            this.pagesToVisit.addAll(leg.getLinks());
+        }
+        System.out.println("\n**Done** Visited " + this.pagesVisited.size() + " web page(s)");
+    }
+
+    /**
+     * Returns the next URL to visit (in the order that they were found). We
+     * also do a check to make sure this method doesn't return a URL that has
+     * already been visited.
+     *
+     * @return
+     */
+    private String nextUrl() {
+        String nextUrl;
+        do {
+            nextUrl = this.pagesToVisit.remove(0);
+        } while (this.pagesVisited.contains(nextUrl));
+        this.pagesVisited.add(nextUrl);
+        return nextUrl;
+    }
+}
