@@ -13,7 +13,7 @@ public class SpiderTest
     public static void main(String[] args)
     {
         boolean addressSwitch = false;
-        System.out.println("Webcrawler Project 1.0");
+        System.out.println("Webcrawler Project 1.1");
         System.out.println("Edited by Ryan Barnes and Andrew Piro-Yusico");
         System.out.println("What term would you like to search for?");
         System.out.print(">");
