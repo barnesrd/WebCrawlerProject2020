@@ -1,6 +1,6 @@
 /**
  * @COSC 2351 Data Structures [Web Crawler Project]
- * @author marianky & Ryan Barnes
+ * @author marianky & Ryan Barnes & Andrew Piro-Yusico
  */
 
 import java.io.*;
